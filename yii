@@ -1,0 +1,28 @@
+#!/usr/bin/env php7.4
+<?php
+/*
+ * @author Igor A Tarasov <develop@dicr.org>, http://dicr.org
+ * @version 15.10.20 06:27:09
+ */
+
+declare(strict_types = 1);
+
+/**
+ * Запуск консольного приложения.
+ */
+
+require(__DIR__ . '/config/local.php');
+
+require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/vendor/yiisoft/yii2/Yii.php';
+
+Yii::setAlias('@dicr/exchange1c', __DIR__ . '/src');
+
+/** @noinspection UsingInclusionReturnValueInspection */
+$config = require __DIR__ . '/config/console.php';
+
+/** @noinspection PhpUnhandledExceptionInspection */
+$application = new yii\console\Application($config);
+
+$exitCode = $application->run();
+exit($exitCode);
