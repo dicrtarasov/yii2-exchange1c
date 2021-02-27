@@ -93,7 +93,6 @@ const EXCHANGE_LOGIN = 'мой-логин';
 
 /** @var ?string пароль */
 const EXCHANGE_PASSWORD = 'мой пароль';
-
 ```
 
 Аргументы командной строки:

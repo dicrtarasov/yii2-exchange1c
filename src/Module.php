@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 27.02.21 22:20:49
+ * @version 28.02.21 01:19:10
  */
 
 declare(strict_types = 1);
@@ -14,6 +14,7 @@ use Throwable;
 use Yii;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\di\Instance;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
 use ZipArchive;
@@ -76,9 +77,7 @@ class Module extends \yii\base\Module
 
         $this->checkPath();
 
-        if (! $this->handler instanceof Handler) {
-            throw new InvalidConfigException('handler');
-        }
+        $this->handler = Instance::ensure($this->handler, Handler::class);
 
         @set_time_limit(0);
     }

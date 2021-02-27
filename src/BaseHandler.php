@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 27.02.21 22:53:17
+ * @version 28.02.21 00:32:01
  */
 
 declare(strict_types = 1);
@@ -322,7 +322,7 @@ abstract class BaseHandler extends BaseObject implements Handler
      * Импорт Свойства.
      *
      * @param SimpleXMLElement $xmlProp (Классификатор->Свойства->Свойство)
-     * @return int|string|null идентификатор свойства на сайте
+     * @return int|string|array|null идентификатор свойства на сайте
      * @noinspection PhpUnusedParameterInspection
      */
     protected function importProp(SimpleXMLElement $xmlProp)
