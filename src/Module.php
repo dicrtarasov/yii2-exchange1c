@@ -3,15 +3,15 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 13:55:55
+ * @version 28.02.21 15:57:29
  */
 
 declare(strict_types = 1);
 namespace dicr\exchange1c;
 
-use ErrorException;
 use Throwable;
 use Yii;
+use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\di\Instance;
@@ -23,24 +23,20 @@ use function constant;
 use function count;
 use function date;
 use function extension_loaded;
-use function file_exists;
 use function glob;
 use function implode;
 use function in_array;
 use function ini_get;
 use function is_array;
-use function is_dir;
 use function is_scalar;
 use function is_string;
-use function ltrim;
-use function mkdir;
+use function mb_strpos;
 use function preg_match;
 use function rename;
 use function set_time_limit;
 use function sprintf;
 use function strtolower;
 use function time;
-use function unlink;
 
 use const PHP_INT_MAX;
 
@@ -74,11 +70,11 @@ class Module extends \yii\base\Module
 
         // путь
         $this->path = Yii::getAlias($this->path);
-        if (empty($this->path) || ! is_string($this->path)) {
+        if (empty($this->path)) {
             throw new InvalidConfigException('path');
         }
 
-        $this->checkExchangeDir();
+        FileHelper::createDirectory($this->path);
 
         // handler
         if (is_string($this->handler)) {
@@ -90,20 +86,6 @@ class Module extends \yii\base\Module
         }
 
         @set_time_limit(0);
-    }
-
-    /**
-     * Проверяет/создает путь обмена.
-     *
-     * @throws Exception
-     */
-    public function checkExchangeDir(): void
-    {
-        if (! file_exists($this->path) &&
-            ! mkdir($this->path, 0777, true) &&
-            ! is_dir($this->path)) {
-            throw new Exception('Ошибка создания директории: ' . $this->path);
-        }
     }
 
     /**
@@ -210,26 +192,24 @@ class Module extends \yii\base\Module
      *
      * @param string|false $file
      * @return string
+     * @throws Exception
+     * @throws ErrorException
      */
     public function path($file): string
     {
         if ($file === false) {
-            foreach (glob($this->path . '/*') as $name) {
-                try {
-                    if (is_dir($name)) {
-                        FileHelper::removeDirectory($name);
-                    } else {
-                        unlink($name);
-                    }
-                } catch (ErrorException $ex) {
-                    $this->errors($ex);
-                }
-            }
+            FileHelper::removeDirectory($this->path);
+            FileHelper::createDirectory($this->path);
 
             return $this->path;
         }
 
-        return $this->path . '/' . ltrim($file, '/');
+        $path = FileHelper::normalizePath($this->path . '/' . $file);
+        if (mb_strpos($this->path, $path) !== 0) {
+            throw new Exception('Путь "' . $path . '" не находится в папке обмена "' . $this->path . '"');
+        }
+
+        return $path;
     }
 
     /**

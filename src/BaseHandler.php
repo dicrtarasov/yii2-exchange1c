@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 13:45:31
+ * @version 28.02.21 15:57:29
  */
 
 declare(strict_types = 1);
@@ -13,10 +13,13 @@ use SimpleXMLElement;
 use Throwable;
 use Yii;
 use yii\base\BaseObject;
+use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\NotSupportedException;
+use yii\helpers\FileHelper;
 
 use function date;
+use function dirname;
 use function error_clear_last;
 use function error_get_last;
 use function file_get_contents;
@@ -77,6 +80,7 @@ abstract class BaseHandler extends BaseObject implements Handler
 
     /**
      * @inheritDoc
+     * @throws ErrorException
      */
     public function processCatalogInit(): array
     {
@@ -85,6 +89,7 @@ abstract class BaseHandler extends BaseObject implements Handler
 
     /**
      * @inheritDoc
+     * @throws ErrorException
      */
     public function processCatalogFile(string $filename, string $content)
     {
@@ -93,6 +98,7 @@ abstract class BaseHandler extends BaseObject implements Handler
 
     /**
      * @inheritDoc
+     * @throws ErrorException
      */
     public function processCatalogImport(string $filename)
     {
@@ -153,6 +159,7 @@ abstract class BaseHandler extends BaseObject implements Handler
 
     /**
      * @inheritDoc
+     * @throws ErrorException
      */
     public function processSaleInit()
     {
@@ -177,6 +184,7 @@ abstract class BaseHandler extends BaseObject implements Handler
 
     /**
      * @inheritDoc
+     * @throws ErrorException
      */
     public function processSaleFile(string $filename, string $content)
     {
@@ -199,6 +207,7 @@ abstract class BaseHandler extends BaseObject implements Handler
 
     /**
      * @inheritDoc
+     * @throws ErrorException
      */
     public function processSaleImport(string $filename)
     {
@@ -249,6 +258,7 @@ abstract class BaseHandler extends BaseObject implements Handler
      *
      * @return string|string[]|null
      * @throws Exception
+     * @throws ErrorException
      */
     protected function processInit(): array
     {
@@ -272,10 +282,13 @@ abstract class BaseHandler extends BaseObject implements Handler
      * @param string $content
      * @return string|string[]|null
      * @throws Exception
+     * @throws ErrorException
      */
     public function processFile(string $filename, string $content)
     {
         $filepath = $this->module->path($filename);
+        FileHelper::createDirectory(dirname($filepath));
+
         $parts = $this->module->progress(self::KEY_FILE . ':' . $filename);
 
         // дописываем в конец следующую порцию файла или перезаписываем файл первой
