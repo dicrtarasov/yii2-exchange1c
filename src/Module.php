@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 15:57:29
+ * @version 28.02.21 16:02:11
  */
 
 declare(strict_types = 1);
@@ -205,7 +205,7 @@ class Module extends \yii\base\Module
         }
 
         $path = FileHelper::normalizePath($this->path . '/' . $file);
-        if (mb_strpos($this->path, $path) !== 0) {
+        if (mb_strpos($path, $this->path) !== 0) {
             throw new Exception('Путь "' . $path . '" не находится в папке обмена "' . $this->path . '"');
         }
 
