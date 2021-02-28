@@ -86,7 +86,7 @@ $client->requestCatalogImport('import.xml');
 
 ```php
 /** @var ?string адрес обмена на сайте */
-const EXCHANGE_URL = 'https://мой-сайт.рф/sync1c';
+const EXCHANGE_URL = 'https://мой-сайт.рф/exchange1c';
 
 /** @var ?string логин */
 const EXCHANGE_LOGIN = 'мой-логин';
