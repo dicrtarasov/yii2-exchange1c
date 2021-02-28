@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 14:05:49
+ * @version 28.02.21 15:25:45
  */
 
 declare(strict_types = 1);
@@ -19,7 +19,6 @@ use yii\web\Response;
 
 use function array_merge;
 use function implode;
-use function is_array;
 
 use const YII_DEBUG;
 
@@ -154,14 +153,10 @@ class DefaultController extends Controller
      */
     private function text($content): Response
     {
-        if (is_array($content)) {
-            $content = implode("\n", $content);
-        }
-
         $res = $this->response;
         $res->format = Response::FORMAT_RAW;
         $res->headers->set('Content-Type', 'text/plain; charset=UTF-8');
-        $res->content = $content . "\n";
+        $res->content = implode("\n", (array)($content ?: [])) . "\n";
 
         return $res;
     }
@@ -174,14 +169,10 @@ class DefaultController extends Controller
      */
     private function xml($xml): Response
     {
-        if ($xml instanceof SimpleXMLElement) {
-            $xml = $xml->asXML();
-        }
-
         $res = $this->response;
         $res->format = Response::FORMAT_RAW;
         $res->headers->set('Content-Type', 'application/xml; charset=UTF-8');
-        $res->content = (string)$xml;
+        $res->content = $xml instanceof SimpleXMLElement ? $xml->asXML() : (string)$xml;
 
         return $res;
     }
