@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 15:31:22
+ * @version 28.02.21 15:33:04
  */
 
 declare(strict_types = 1);
@@ -109,6 +109,8 @@ class DefaultController extends Controller
         } catch (ProgressException $ex) {
             return $this->progress($ex->getMessage());
         } catch (Throwable $ex) {
+            Yii::error($ex, __METHOD__);
+
             return $this->fail(YII_DEBUG ? (string)$ex : $ex);
         }
     }
