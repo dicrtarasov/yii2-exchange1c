@@ -33,7 +33,6 @@
     },
     "autoload": {
         "psr-4": {
-            "app\\": "./",
             "dicr\\exchange1c\\": "src/"
         }
     },
