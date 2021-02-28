@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 13:01:44
+ * @version 28.02.21 13:45:31
  */
 
 declare(strict_types = 1);
@@ -33,6 +33,24 @@ use const FILE_APPEND;
  */
 abstract class BaseHandler extends BaseObject implements Handler
 {
+    /** @var string ключ данных Свойств */
+    public const KEY_PROP = 'prop';
+
+    /** @var string ключ данных Групп */
+    public const KEY_GROUP = 'group';
+
+    /** @var string ключ данных Товаров */
+    public const KEY_PROD = 'prod';
+
+    /** @var string ключ данных Заказов */
+    public const KEY_ORDER = 'order';
+
+    /** @var string ключ данных файлов */
+    public const KEY_FILE = 'file';
+
+    /** @var string клч данных Предложений */
+    public const KEY_OFFER = 'offer';
+
     /** @var Module */
     protected $module;
 
@@ -114,14 +132,15 @@ abstract class BaseHandler extends BaseObject implements Handler
             }
         }
 
+        // получаем статистику и ошибки
+        $stat = $this->module->stat();
+        $errors = $this->module->errors();
+
         // очищаем сессию, так как она очень большая и будет брошена 1С
         $this->module->sess(false);
 
         // статистика и ошибки
-        return [
-            $this->module->stat(),
-            $this->module->errors()
-        ];
+        return [$stat, $errors];
     }
 
     /**
@@ -200,11 +219,15 @@ abstract class BaseHandler extends BaseObject implements Handler
         // импорт заказов из XML
         $this->importOrders($xml);
 
+        // получаем статистику и ошибки
+        $stat = $this->module->stat();
+        $errors = $this->module->errors();
+
+        // очищаем сессию
+        $this->module->sess(false);
+
         // статистика и ошибки
-        return [
-            $this->module->stat(),
-            $this->module->errors()
-        ];
+        return [$stat, $errors];
     }
 
     /**
@@ -253,7 +276,7 @@ abstract class BaseHandler extends BaseObject implements Handler
     public function processFile(string $filename, string $content)
     {
         $filepath = $this->module->path($filename);
-        $parts = $this->module->progress($filename);
+        $parts = $this->module->progress(self::KEY_FILE . ':' . $filename);
 
         // дописываем в конец следующую порцию файла или перезаписываем файл первой
         if (file_put_contents($filepath, $content, ! empty($parts) ? FILE_APPEND : 0) === false) {
@@ -263,7 +286,7 @@ abstract class BaseHandler extends BaseObject implements Handler
         }
 
         // сохраняем прогресс частей
-        $this->module->progress($filename, $parts + 1);
+        $this->module->progress(self::KEY_FILE . ':' . $filename, $parts + 1);
 
         return null;
     }
@@ -280,7 +303,7 @@ abstract class BaseHandler extends BaseObject implements Handler
             return;
         }
 
-        $progress = $this->module->progress('prop');
+        $progress = $this->module->progress(self::KEY_PROP);
         $pos = 0;
 
         foreach ($xml->Классификатор->Свойства->Свойство as $xmlProp) {
@@ -306,15 +329,15 @@ abstract class BaseHandler extends BaseObject implements Handler
                 // Ид сайта
                 $id = $this->importProp($xmlProp);
                 if ($id !== null) {
-                    $this->module->cache(['prop', $cid], $id);
-                    $this->module->stat('prop');
+                    $this->module->cache([self::KEY_PROP, $cid], $id);
+                    $this->module->stat(self::KEY_PROP);
                 }
             } catch (Throwable $ex) {
                 $this->module->errors($ex);
             }
 
             // обновляем прогресс
-            $this->module->progress('prop', $pos);
+            $this->module->progress(self::KEY_PROP, $pos);
         }
     }
 
@@ -343,7 +366,7 @@ abstract class BaseHandler extends BaseObject implements Handler
         }
 
         // прогресс учитывается только для корневых групп, а время проверяется при импорте дочерних
-        $progress = $this->module->progress('group');
+        $progress = $this->module->progress(self::KEY_GROUP);
         $pos = 0;
 
         foreach ($xml->Классификатор->Группы->Группа as $xmlGroup) {
@@ -364,7 +387,7 @@ abstract class BaseHandler extends BaseObject implements Handler
             }
 
             // обновляем прогресс
-            $this->module->progress('group', $pos);
+            $this->module->progress(self::KEY_GROUP, $pos);
         }
     }
 
@@ -393,8 +416,8 @@ abstract class BaseHandler extends BaseObject implements Handler
         $id = $this->importGroup($xmlGroup, $parentId);
         if ($id !== null) {
             // статистика и кэш
-            $this->module->cache(['group', $cid], $id);
-            $this->module->stat('group');
+            $this->module->cache([self::KEY_GROUP, $cid], $id);
+            $this->module->stat(self::KEY_GROUP);
 
             // импортируем подгруппы
             if (isset($xmlGroup->Группы->Группа)) {
@@ -439,7 +462,7 @@ abstract class BaseHandler extends BaseObject implements Handler
         }
 
         // прогресс импорта
-        $progress = $this->module->progress('prod');
+        $progress = $this->module->progress(self::KEY_PROD);
         $pos = 0;
 
         foreach ($xml->Каталог->Товары->Товар as $xmlProd) {
@@ -465,15 +488,15 @@ abstract class BaseHandler extends BaseObject implements Handler
                 // импортируем на сайт
                 $id = $this->importProduct($xmlProd);
                 if ($id !== null) {
-                    $this->module->cache(['prod', $cid], $id);
-                    $this->module->stat('prod');
+                    $this->module->cache([self::KEY_PROD, $cid], $id);
+                    $this->module->stat(self::KEY_PROD);
                 }
             } catch (Throwable $ex) {
                 $this->module->errors($ex);
             }
 
             // сохраняем прогресс
-            $this->module->progress('prod', $pos);
+            $this->module->progress(self::KEY_PROD, $pos);
         }
     }
 
@@ -502,7 +525,7 @@ abstract class BaseHandler extends BaseObject implements Handler
         }
 
         // прогресс импорта предложений
-        $progress = $this->module->progress('offer');
+        $progress = $this->module->progress(self::KEY_OFFER);
         $pos = 0;
 
         foreach ($xml->ПакетПредложений->Предложения->Предложение as $xmlOffer) {
@@ -520,13 +543,13 @@ abstract class BaseHandler extends BaseObject implements Handler
             // импортируем
             try {
                 $this->importOffer($xmlOffer);
-                $this->module->stat('offer');
+                $this->module->stat(self::KEY_OFFER);
             } catch (Throwable $ex) {
                 $this->module->errors($ex);
             }
 
             // обновляем прогресс
-            $this->module->progress('offer');
+            $this->module->progress(self::KEY_OFFER);
         }
     }
 
@@ -543,7 +566,7 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * Удаление старых данных (свойств, групп и товаров) с сайта.
      * Вызывается когда документ СодержитТолькоИзменения="false".
-     * Идентификаторы импортированных за сессию данных можно получить в $this->module::stat();
+     * Идентификаторы импортированных за сессию данных можно получить в $this->module->stat();
      *
      * @param SimpleXMLElement $xml документ
      * @see Module::stat()
@@ -566,7 +589,7 @@ abstract class BaseHandler extends BaseObject implements Handler
         }
 
         // прогресс импорта
-        $progress = $this->module->progress('order');
+        $progress = $this->module->progress(self::KEY_ORDER);
         $pos = 0;
 
         foreach ($xml->Документ as $xmlDoc) {
@@ -590,15 +613,15 @@ abstract class BaseHandler extends BaseObject implements Handler
 
                 $id = $this->importOrder($xmlDoc);
                 if ($id !== null) {
-                    $this->module->cache(['order', $cid], $id);
-                    $this->module->stat('order');
+                    $this->module->cache([self::KEY_ORDER, $cid], $id);
+                    $this->module->stat(self::KEY_ORDER);
                 }
             } catch (Throwable $ex) {
                 $this->module->errors($ex);
             }
 
             // обновляем прогресс
-            $this->module->progress('order', $pos);
+            $this->module->progress(self::KEY_ORDER, $pos);
         }
     }
 

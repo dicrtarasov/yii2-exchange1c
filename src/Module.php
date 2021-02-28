@@ -3,13 +3,12 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 13:06:06
+ * @version 28.02.21 13:55:55
  */
 
 declare(strict_types = 1);
 namespace dicr\exchange1c;
 
-use app\components\Exchange1CHandler;
 use ErrorException;
 use Throwable;
 use Yii;
@@ -44,7 +43,6 @@ use function time;
 use function unlink;
 
 use const PHP_INT_MAX;
-use const YII_DEBUG;
 
 /**
  * Модуль обмена заказами.
@@ -59,6 +57,9 @@ class Module extends \yii\base\Module
 
     /** @var Handler */
     public $handler;
+
+    /** @var int лимит количества ошибок в статистике */
+    public $errorsLimit = 100;
 
     /** @inheritDoc */
     public $controllerNamespace = __NAMESPACE__;
@@ -328,16 +329,12 @@ class Module extends \yii\base\Module
 
         if ($error !== false) {
             // конвертируем исключения в строку
-            if (YII_DEBUG) {
-                $errStr = (string)$error;
-            } else {
-                $errStr = $error instanceof Throwable ? $error->getMessage() : (string)$error;
-            }
+            $errStr = $error instanceof Throwable ? $error->getMessage() : (string)$error;
 
             // добавляем, исключая повтора
             if (! in_array($errStr, $sess['errors'], true)) {
                 // ограничиваем до адекватных размеров
-                if (count($sess['errors']) < 1000) {
+                if (empty($this->errorsLimit) || count($sess['errors']) < $this->errorsLimit) {
                     $sess['errors'][] = $errStr;
                 }
 

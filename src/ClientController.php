@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 13:04:30
+ * @version 28.02.21 13:59:29
  */
 
 declare(strict_types = 1);
@@ -49,7 +49,7 @@ class ClientController extends Controller
         Yii::info("success\n" . implode("\n", $data), __METHOD__);
 
         Yii::info('catalog/import: ' . basename($file), __METHOD__);
-        $data = $client->requestCatalogImport('import.xml');
+        $data = $client->requestCatalogImport(basename($file));
         Yii::info("success\n" . implode("\n", $data), __METHOD__);
 
         Yii::info('Done', __METHOD__);

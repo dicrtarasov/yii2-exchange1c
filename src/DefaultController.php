@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 13:06:06
+ * @version 28.02.21 14:05:49
  */
 
 declare(strict_types = 1);
@@ -32,7 +32,7 @@ class DefaultController extends Controller
 {
     /**
      * @inheritDoc
-     * Отключаем валидацию POST, так как 1С не испоьзует CSRF
+     * Отключаем валидацию POST, так как 1С не использует CSRF
      */
     public $enableCsrfValidation = false;
 

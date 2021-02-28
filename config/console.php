@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 12:26:58
+ * @version 28.02.21 13:56:11
  */
 
 /** @noinspection UsingInclusionReturnValueInspection */
@@ -22,7 +22,7 @@ $config['controllerNamespace'] = 'dicr\\exchange1c';
 $config['components']['log']['flushInterval'] = 1;
 $config['components']['log']['targets']['console'] = [
     'class' => dicr\log\ConsoleTarget::class,
-    'levels' => ['error', 'warning', 'info', 'trace', 'profile'],
+    'levels' => ['error', 'warning', 'info'],
     'categories' => ['app\\*', 'dicr\\*']
 ];
 
