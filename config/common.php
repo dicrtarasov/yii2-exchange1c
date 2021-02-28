@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 27.02.21 23:01:24
+ * @version 28.02.21 13:03:55
  */
 
 declare(strict_types = 1);
@@ -36,14 +36,14 @@ return [
                     'levels' => ['error', 'warning', 'info'],
                     'except' => [
                         'yii\web\HttpException:404', 'yii\i18n\PhpMessageSource::loadMessages', 'yii\web\Session::open',
-                        'yii\swiftmailer\Mailer::sendMessage'
+                        'yii\swiftmailer\Mailer::sendMessage', 'yii\httpclient\CurlTransport::send'
                     ]
                 ],
                 'dicr' => [
                     'class' => yii\log\FileTarget::class,
                     'logFile' => '@runtime/logs/dicr.log',
-                    'categories' => ['dicr\\*', 'app\\*'],
-                    'levels' => ['error', 'warning', 'info', 'trace', 'profile']
+                    'levels' => ['error', 'warning', 'info', 'trace', 'profile'],
+                    'categories' => ['dicr\\*', 'app\\*']
                 ]
             ],
         ],

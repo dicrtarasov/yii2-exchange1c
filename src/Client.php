@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 27.02.21 22:46:48
+ * @version 28.02.21 12:57:35
  */
 
 declare(strict_types = 1);
@@ -465,10 +465,10 @@ class Client extends Component
 
         // повторяем команду пока статус = progress
         $status = null;
+
         while (true) {
             $content = $this->get(['type' => $type, 'mode' => 'import', 'filename' => basename($file)]);
-
-            $lines = preg_split('~[\r\n\v]+~um', $content);
+            $lines = (array)preg_split('~[\r\n\v]+~um', $content);
 
             $status = array_shift($lines);
             if ($status !== C1::PROGRESS) {
@@ -477,7 +477,9 @@ class Client extends Component
         }
 
         if ($status !== C1::SUCCESS) {
-            throw new Exception('Ответ: ' . $status);
+            throw new Exception(
+                'Статус: ' . $status, 0, new Exception(implode("\n", $lines ?? []))
+            );
         }
 
         Yii::debug('Выполнен импорт файла: ' . $file, __METHOD__);
