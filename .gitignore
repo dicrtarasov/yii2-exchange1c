@@ -2,7 +2,5 @@
 /runtime/*
 /.phpunit.result.cache
 /config/local.php
-/doc/import.xml
-/doc/offers.xml
-/doc/*.xml.zip
+/doc
 
