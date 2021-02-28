@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 15:57:29
+ * @version 28.02.21 17:41:49
  */
 
 declare(strict_types = 1);
@@ -619,7 +619,7 @@ abstract class BaseHandler extends BaseObject implements Handler
 
             // импорт
             try {
-                $cid = $this->parseCid((string)$xml->Ид);
+                $cid = $this->parseCid((string)$xmlDoc->Ид);
                 if (empty($cid)) {
                     throw new Exception('Отсутствует Ид Документа заказа');
                 }
