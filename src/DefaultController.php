@@ -3,14 +3,13 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 27.02.21 23:50:02
+ * @version 28.02.21 13:06:06
  */
 
 declare(strict_types = 1);
 namespace dicr\exchange1c;
 
 use Exception;
-use OverflowException;
 use SimpleXMLElement;
 use Throwable;
 use yii\web\BadRequestHttpException;
@@ -31,6 +30,12 @@ use const YII_DEBUG;
  */
 class DefaultController extends Controller
 {
+    /**
+     * @inheritDoc
+     * Отключаем валидацию POST, так как 1С не испоьзует CSRF
+     */
+    public $enableCsrfValidation = false;
+
     /**
      * Обработка запросов от 1С
      *
@@ -101,7 +106,7 @@ class DefaultController extends Controller
             }
         } catch (HttpException $ex) {
             throw $ex;
-        } catch (OverflowException $ex) {
+        } catch (ProgressException $ex) {
             return $this->progress($ex->getMessage());
         } catch (Throwable $ex) {
             return $this->fail(YII_DEBUG ? (string)$ex : $ex);

@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 00:32:01
+ * @version 28.02.21 13:01:44
  */
 
 declare(strict_types = 1);
@@ -237,7 +237,7 @@ abstract class BaseHandler extends BaseObject implements Handler
 
         // параметры обмена
         return [
-            'zip=' . $this->module->zipEnabled(),
+            'zip=' . ($this->module->zipEnabled() ? 'yes' : 'no'),
             'file_limit=' . $this->module->uploadMaxSize()
         ];
     }
@@ -286,7 +286,7 @@ abstract class BaseHandler extends BaseObject implements Handler
         foreach ($xml->Классификатор->Свойства->Свойство as $xmlProp) {
             // проверяем оставшееся время
             if ($this->module->availableTime() < 1) {
-                throw new ProgressException('Импорт Свойств...');
+                throw new ProgressException('Импорт Свойств..., pos=' . $pos);
             }
 
             // пропускаем импортированные позиции в прошлом запросе
@@ -346,7 +346,7 @@ abstract class BaseHandler extends BaseObject implements Handler
         $progress = $this->module->progress('group');
         $pos = 0;
 
-        foreach ($xml->Группы->Группа as $xmlGroup) {
+        foreach ($xml->Классификатор->Группы->Группа as $xmlGroup) {
             // проверяем позицию на корневых категориях (время учитываем в рекурсивной функции)
             $pos++;
             if ($pos <= $progress) {
@@ -357,8 +357,8 @@ abstract class BaseHandler extends BaseObject implements Handler
                 // импортируем рекурсивно (время, кэш и статистика в дочерних)
                 $this->importGroupRecursive($xmlGroup, null);
             } catch (ProgressException $ex) {
-                // сообщение о лимите времени не перехватываем
-                throw $ex;
+                // сообщение о лимите времени не перехватываем, добавляем в сообщение номер позиции
+                throw new ProgressException('Импорт Групп..., pos=' . $pos);
             } catch (Throwable $ex) {
                 $this->module->errors($ex);
             }
@@ -380,7 +380,7 @@ abstract class BaseHandler extends BaseObject implements Handler
     {
         // проверяем наличие времени
         if ($this->module->availableTime() < 1) {
-            throw new ProgressException('Импорт Групп ...');
+            throw new ProgressException('Импорт Групп...');
         }
 
         // 1C Ид
@@ -445,7 +445,7 @@ abstract class BaseHandler extends BaseObject implements Handler
         foreach ($xml->Каталог->Товары->Товар as $xmlProd) {
             // проверяем время
             if ($this->module->availableTime() < 1) {
-                throw new ProgressException('Импорт Товаров ...');
+                throw new ProgressException('Импорт Товаров..., pos=' . $pos);
             }
 
             // пропускаем импортированные в прошлых запросах
@@ -508,7 +508,7 @@ abstract class BaseHandler extends BaseObject implements Handler
         foreach ($xml->ПакетПредложений->Предложения->Предложение as $xmlOffer) {
             // проверяем остаток времени
             if ($this->module->availableTime() < 1) {
-                throw new ProgressException('Импорт Предложений...');
+                throw new ProgressException('Импорт Предложений..., pos=' . $pos);
             }
 
             // пропускаем импортированные в предыдущем запросе
@@ -572,7 +572,7 @@ abstract class BaseHandler extends BaseObject implements Handler
         foreach ($xml->Документ as $xmlDoc) {
             // проверяем время
             if ($this->module->availableTime() < 1) {
-                throw new ProgressException('Импорт заказов...');
+                throw new ProgressException('Импорт заказов..., pos=' . $pos);
             }
 
             // пропускаем импортированные ранее

@@ -3,12 +3,13 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 01:19:10
+ * @version 28.02.21 13:06:06
  */
 
 declare(strict_types = 1);
 namespace dicr\exchange1c;
 
+use app\components\Exchange1CHandler;
 use ErrorException;
 use Throwable;
 use Yii;
@@ -71,13 +72,21 @@ class Module extends \yii\base\Module
         parent::init();
 
         // путь
+        $this->path = Yii::getAlias($this->path);
         if (empty($this->path) || ! is_string($this->path)) {
             throw new InvalidConfigException('path');
         }
 
-        $this->checkPath();
+        $this->checkExchangeDir();
 
-        $this->handler = Instance::ensure($this->handler, Handler::class);
+        // handler
+        if (is_string($this->handler)) {
+            $this->handler = Instance::ensure($this->handler, Handler::class);
+        } elseif (is_array($this->handler)) {
+            $this->handler = Yii::createObject($this->handler, [$this]);
+        } elseif (! $this->handler instanceof Handler) {
+            throw new InvalidConfigException('handler');
+        }
 
         @set_time_limit(0);
     }
@@ -87,7 +96,7 @@ class Module extends \yii\base\Module
      *
      * @throws Exception
      */
-    public function checkPath(): void
+    public function checkExchangeDir(): void
     {
         if (! file_exists($this->path) &&
             ! mkdir($this->path, 0777, true) &&
