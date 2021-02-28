@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 15:25:45
+ * @version 28.02.21 15:31:22
  */
 
 declare(strict_types = 1);
@@ -12,6 +12,7 @@ namespace dicr\exchange1c;
 use Exception;
 use SimpleXMLElement;
 use Throwable;
+use Yii;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\HttpException;
@@ -153,10 +154,13 @@ class DefaultController extends Controller
      */
     private function text($content): Response
     {
+        $content = implode("\n", (array)($content ?: []));
+        Yii::debug($content, __METHOD__);
+
         $res = $this->response;
         $res->format = Response::FORMAT_RAW;
         $res->headers->set('Content-Type', 'text/plain; charset=UTF-8');
-        $res->content = implode("\n", (array)($content ?: [])) . "\n";
+        $res->content = $content . "\n";
 
         return $res;
     }
