@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 28.02.21 12:57:35
+ * @version 28.05.21 14:09:04
  */
 
 declare(strict_types = 1);
@@ -383,7 +383,6 @@ class Client extends Component
     {
         $lines = $this->parseStatus($this->get(['type' => $type, 'mode' => 'init']));
 
-        $matches = null;
         for ($i = 0; $i < 2; $i++) {
             $line = (string)array_shift($lines);
             $matches = null;
@@ -464,8 +463,6 @@ class Client extends Component
         }
 
         // повторяем команду пока статус = progress
-        $status = null;
-
         while (true) {
             $content = $this->get(['type' => $type, 'mode' => 'import', 'filename' => basename($file)]);
             $lines = (array)preg_split('~[\r\n\v]+~um', $content);
