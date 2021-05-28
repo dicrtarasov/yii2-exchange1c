@@ -71,6 +71,8 @@
       <path value="$PROJECT_DIR$/vendor/dicr/yii2-file" />
       <path value="$PROJECT_DIR$/vendor/dicr/yii2-asset" />
       <path value="$PROJECT_DIR$/vendor/dicr/yii2-widgets" />
+      <path value="$PROJECT_DIR$/vendor/dicr/yii2-http" />
+      <path value="$PROJECT_DIR$/vendor/simplehtmldom/simplehtmldom" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.4" />

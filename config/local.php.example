@@ -1,0 +1,18 @@
+<?php
+/*
+ * @copyright 2019-2021 Dicr http://dicr.org
+ * @author Igor A Tarasov <develop@dicr.org>
+ * @license MIT
+ * @version 27.02.21 20:56:12
+ */
+
+declare(strict_types=1);
+
+/**  */
+const EXCHANGE_URL = 'http://site.ru/bitrix/admin/1c_exchange.php';
+
+/**  */
+const EXCHANGE_LOGIN = 'bitrix';
+
+/**  */
+const EXCHANGE_PASSWORD = 'my_password';

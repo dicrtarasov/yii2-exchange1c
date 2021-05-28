@@ -2,26 +2,26 @@
 /*
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
- * @license MIT
- * @version 28.05.21 14:09:04
+ * @license BSD-3-Clause
+ * @version 28.05.21 15:07:27
  */
 
 declare(strict_types = 1);
 namespace dicr\exchange1c;
 
+use dicr\http\PersistentCookiesBehavior;
+use dicr\http\ResponseCharsetBehavior;
 use SimpleXMLElement;
 use Yii;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
-use yii\di\Instance;
 use yii\httpclient\CurlTransport;
 use yii\httpclient\Request;
 use yii\web\Cookie;
 use ZipArchive;
 
-use function array_merge;
 use function array_shift;
 use function basename;
 use function extension_loaded;
@@ -29,7 +29,6 @@ use function fclose;
 use function feof;
 use function fopen;
 use function fread;
-use function is_array;
 use function is_file;
 use function is_string;
 use function mb_substr;
@@ -38,7 +37,7 @@ use function preg_split;
 use function simplexml_load_string;
 use function sprintf;
 
-use const CURLOPT_ACCEPT_ENCODING;
+use const CURLOPT_ENCODING;
 use const CURLOPT_PASSWORD;
 use const CURLOPT_USERNAME;
 
@@ -58,9 +57,6 @@ class Client extends Component
 
     /** @var ?string пароль */
     public $password;
-
-    /** @var string|array конфиг HTTP-клиента */
-    public $httpClientConfig;
 
     /** @var bool импорт заказов выполняется в sale/file и отсутствует отдельный sale/import */
     public $saleImportInFile = true;
@@ -230,30 +226,22 @@ class Client extends Component
      * HTTP-клиент.
      *
      * @return \yii\httpclient\Client
-     * @throws InvalidConfigException
      */
     public function getHttpClient(): \yii\httpclient\Client
     {
         if ($this->_httpClient === null) {
-            if (empty($this->httpClientConfig) || is_array($this->httpClientConfig)) {
-                $this->_httpClient = Yii::createObject(array_merge([
-                    'class' => \yii\httpclient\Client::class,
-                    'transport' => CurlTransport::class,
-                    'requestConfig' => [
-                        'options' => [
-                            'userAgent' => 'Dicr 1C Exchange Client',
-                            'sslVerifyPeer' => false,
-                            CURLOPT_ACCEPT_ENCODING => '', // все поддерживаемые методы сжатия
-                        ]
+            $this->_httpClient = new \yii\httpclient\Client([
+                'transport' => CurlTransport::class,
+                'requestConfig' => [
+                    'options' => [
+                        'userAgent' => 'Dicr 1C Exchange Client',
+                        'sslVerifyPeer' => false,
+                        CURLOPT_ENCODING => '', // все поддерживаемые методы сжатия
                     ]
-                ], $this->httpClientConfig ?: []));
-            } elseif (is_string($this->httpClientConfig)) {
-                $this->_httpClient = Instance::ensure($this->httpClientConfig, \yii\httpclient\Client::class);
-            } elseif ($this->httpClientConfig instanceof \yii\httpclient\Client) {
-                $this->_httpClient = $this->httpClientConfig;
-            } else {
-                throw new InvalidConfigException('httpClient');
-            }
+                ],
+                'as cookie' => PersistentCookiesBehavior::class,
+                'as charset' => ResponseCharsetBehavior::class
+            ]);
         }
 
         // базовый URL
@@ -303,18 +291,20 @@ class Client extends Component
      * Парсит ответ и проверяет статус.
      *
      * @param string $content ответ
+     * @param bool $requireSuccess требовать строку 'success' в ответе
      * @return string[] дополнительные данные ответа
      * @throws Exception
      */
-    protected function parseStatus(string $content): array
+    protected function parseStatus(string $content, bool $requireSuccess = true): array
     {
         $lines = preg_split('~[\r\n\v]+~um', $content);
-
-        $status = array_shift($lines);
-        if ($status !== C1::SUCCESS) {
-            throw new Exception(
-                'Статус: ' . $status, 0, new Exception(implode("\n", $lines))
-            );
+        if ($requireSuccess) {
+            $status = array_shift($lines);
+            if ($status !== C1::SUCCESS) {
+                throw new Exception(
+                    'Статус: ' . $status, 0, new Exception(implode("\n", $lines))
+                );
+            }
         }
 
         return $lines;
@@ -381,7 +371,7 @@ class Client extends Component
      */
     protected function requestInit(string $type): array
     {
-        $lines = $this->parseStatus($this->get(['type' => $type, 'mode' => 'init']));
+        $lines = $this->parseStatus($this->get(['type' => $type, 'mode' => 'init']), false);
 
         for ($i = 0; $i < 2; $i++) {
             $line = (string)array_shift($lines);
@@ -466,7 +456,6 @@ class Client extends Component
         while (true) {
             $content = $this->get(['type' => $type, 'mode' => 'import', 'filename' => basename($file)]);
             $lines = (array)preg_split('~[\r\n\v]+~um', $content);
-
             $status = array_shift($lines);
             if ($status !== C1::PROGRESS) {
                 break;

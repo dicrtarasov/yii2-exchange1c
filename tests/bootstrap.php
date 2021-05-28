@@ -3,8 +3,8 @@
 /*
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
- * @license MIT
- * @version 27.02.21 21:03:06
+ * @license BSD-3-Clause
+ * @version 28.05.21 14:30:13
  */
 declare(strict_types = 1);
 
@@ -17,8 +17,9 @@ defined('YII_ENV') || define('YII_ENV', 'dev');
 /** режим отладки */
 defined('YII_DEBUG') || define('YII_DEBUG', true);
 
-require_once(dirname(__DIR__) . '/vendor/autoload.php');
-require_once(dirname(__DIR__) . '/vendor/yiisoft/yii2/Yii.php');
+require_once __DIR__ . '/../config/local.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/yiisoft/yii2/Yii.php';
 
 /** @noinspection PhpUnhandledExceptionInspection */
 new yii\console\Application([
@@ -40,6 +41,9 @@ new yii\console\Application([
         ],
         'client' => [
             'class' => Client::class,
+            'url' => EXCHANGE_URL,
+            'login' => EXCHANGE_LOGIN,
+            'password' => EXCHANGE_PASSWORD
         ]
     ]
 ]);

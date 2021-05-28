@@ -2,8 +2,8 @@
 /*
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
- * @license MIT
- * @version 27.02.21 22:55:06
+ * @license BSD-3-Clause
+ * @version 28.05.21 14:30:30
  */
 
 declare(strict_types = 1);
@@ -35,7 +35,7 @@ class ClientTest extends TestCase
      * @throws Exception
      * @noinspection PhpUnitMissingTargetForTestInspection
      */
-    public function testCatalog(): void
+    public function testCheckAuth(): void
     {
         $client = self::client();
 

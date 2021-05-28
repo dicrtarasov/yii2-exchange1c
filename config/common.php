@@ -2,13 +2,11 @@
 /*
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
- * @license MIT
- * @version 28.02.21 13:03:55
+ * @license BSD-3-Clause
+ * @version 28.05.21 14:11:06
  */
 
 declare(strict_types = 1);
-
-use dicr\exchange1c\Client;
 
 require_once(__DIR__ . '/local.php');
 
@@ -48,7 +46,7 @@ return [
             ],
         ],
         'client' => [
-            'class' => Client::class,
+            'class' => dicr\exchange1c\Client::class,
             'url' => EXCHANGE_URL,
             'login' => EXCHANGE_LOGIN,
             'password' => EXCHANGE_PASSWORD

@@ -1,7 +1,7 @@
 {
     "name": "dicr/yii2-exchange1c",
     "type": "yii2-extension",
-    "license": "MIT",
+    "license": "BSD-3-Clause",
     "description": "Протокол 1С обмена с сайтом Bitrix для Yii2",
     "homepage": "https://gitlab.com/dicr/yii2-exchange1c",
     "keywords": ["dicr", "yii2", "1c", "exchange", "bitrix"],
@@ -16,7 +16,9 @@
     "support": {
         "source": "https://gitlab.com/dicr/yii2-exchange1c.git"
     },
-    "minimum-stability": "stable",
+
+    "minimum-stability": "RC",
+    "prefer-stable": true,
     "require": {
         "php": "~7.4 || ~8.0.1",
         "ext-simplexml": "*",
@@ -28,6 +30,7 @@
         "yiisoft/yii2-httpclient": "~2.0",
 
         "dicr/yii2-helper": "~4.5",
+        "dicr/yii2-http": "~2.5",
         "dicr/yii2-log": "~1.3",
         "dicr/yii2-validate": "~2.3"
     },
@@ -44,6 +47,7 @@
     "repositories": [
         {"type": "composer", "url": "https://asset-packagist.org"},
         {"type": "gitlab", "url": "https://gitlab.com/dicr/yii2-helper.git"},
+        {"type": "gitlab", "url": "https://gitlab.com/dicr/yii2-http.git"},
         {"type": "gitlab", "url": "https://gitlab.com/dicr/yii2-log.git"},
         {"type": "gitlab", "url": "https://gitlab.com/dicr/yii2-validate.git"}
     ],

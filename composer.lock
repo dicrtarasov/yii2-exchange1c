@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "116f5e0fd7fc47bec487b5f1030283e1",
+    "content-hash": "69758e93141ddbbc491ad8d51fd17289",
     "packages": [
         {
             "name": "bower-asset/inputmask",
@@ -331,6 +331,70 @@
                 "source": "https://gitlab.com/dicr/yii2-helper.git"
             },
             "time": "2021-05-14T03:48:39+05:00"
+        },
+        {
+            "name": "dicr/yii2-http",
+            "version": "2.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://gitlab.com/dicr/yii2-http.git",
+                "reference": "8707a366ec4c77a086d88afe94e6d134485c2198"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://gitlab.com/api/v4/projects/dicr%2Fyii2-http/repository/archive.zip?sha=8707a366ec4c77a086d88afe94e6d134485c2198",
+                "reference": "8707a366ec4c77a086d88afe94e6d134485c2198",
+                "shasum": ""
+            },
+            "require": {
+                "dicr/yii2-helper": "~4.5",
+                "ext-dom": "*",
+                "ext-iconv": "*",
+                "ext-libxml": "*",
+                "ext-mbstring": "*",
+                "ext-zlib": "*",
+                "php": "~7.4 || ~8.0.1",
+                "simplehtmldom/simplehtmldom": "~2.0-RC2",
+                "yiisoft/yii2": "~2.0",
+                "yiisoft/yii2-httpclient": "~2.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~9.5",
+                "roave/security-advisories": "dev-latest"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "dicr\\http\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "dicr\\tests\\": "tests/"
+                }
+            },
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Igor Tarasov",
+                    "email": "develop@dicr.org",
+                    "homepage": "http://dicr.org",
+                    "role": "developer"
+                }
+            ],
+            "description": "HTTP-утилиты для Yii2",
+            "homepage": "https://gitlab.com/dicr/yii2-http",
+            "keywords": [
+                "dicr",
+                "http",
+                "yii2"
+            ],
+            "support": {
+                "source": "https://gitlab.com/dicr/yii2-http.git"
+            },
+            "time": "2021-05-28T15:04:30+05:00"
         },
         {
             "name": "dicr/yii2-log",
@@ -704,6 +768,81 @@
                 "source": "https://github.com/scssphp/scssphp/tree/v1.5.2"
             },
             "time": "2021-05-18T00:05:58+00:00"
+        },
+        {
+            "name": "simplehtmldom/simplehtmldom",
+            "version": "2.0-RC2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/simplehtmldom/simplehtmldom.git",
+                "reference": "3c87726400e59d8e1bc4709cfe82353abeb0f4d1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/simplehtmldom/simplehtmldom/zipball/3c87726400e59d8e1bc4709cfe82353abeb0f4d1",
+                "reference": "3c87726400e59d8e1bc4709cfe82353abeb0f4d1",
+                "shasum": ""
+            },
+            "require": {
+                "ext-iconv": "*",
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6 || ^7"
+            },
+            "suggest": {
+                "ext-curl": "Needed to support cURL downloads in class HtmlWeb",
+                "ext-mbstring": "Allows better decoding for multi-byte documents",
+                "ext-openssl": "Allows loading HTTPS pages when using cURL"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "./"
+                ],
+                "exclude-from-classmap": [
+                    "/example/",
+                    "/manual/",
+                    "/testcase/",
+                    "/tests/",
+                    "simple_html_dom.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "S.C. Chen",
+                    "role": "Developer"
+                },
+                {
+                    "name": "John Schlick",
+                    "role": "Developer"
+                },
+                {
+                    "name": "logmanoriginal",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A fast, simple and reliable HTML document parser for PHP.",
+            "homepage": "https://simplehtmldom.sourceforge.io/",
+            "keywords": [
+                "Simple",
+                "dom",
+                "html",
+                "parser",
+                "php",
+                "simplehtmldom"
+            ],
+            "support": {
+                "issues": "https://sourceforge.net/p/simplehtmldom/bugs/",
+                "rss": "https://sourceforge.net/p/simplehtmldom/news/feed.rss",
+                "source": "https://sourceforge.net/p/simplehtmldom/repository/",
+                "wiki": "https://simplehtmldom.sourceforge.io/docs/"
+            },
+            "time": "2019-11-09T15:42:50+00:00"
         },
         {
             "name": "yiisoft/yii2",
@@ -3540,11 +3679,11 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
+    "minimum-stability": "RC",
     "stability-flags": {
         "roave/security-advisories": 20
     },
-    "prefer-stable": false,
+    "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "~7.4 || ~8.0.1",
