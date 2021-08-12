@@ -2,8 +2,8 @@
 /*
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
- * @license MIT
- * @version 28.02.21 16:02:11
+ * @license BSD-3-Clause
+ * @version 12.08.21 23:07:56
  */
 
 declare(strict_types = 1);
@@ -85,6 +85,7 @@ class Module extends \yii\base\Module
             throw new InvalidConfigException('handler');
         }
 
+        /** @noinspection PhpUsageOfSilenceOperatorInspection */
         @set_time_limit(0);
     }
 
