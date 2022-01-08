@@ -1,9 +1,9 @@
 <?php
 /*
- * @copyright 2019-2021 Dicr http://dicr.org
+ * @copyright 2019-2022 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
- * @license MIT
- * @version 28.02.21 17:41:49
+ * @license BSD-3-Clause
+ * @version 08.01.22 17:12:22
  */
 
 declare(strict_types = 1);
@@ -26,7 +26,6 @@ use function file_get_contents;
 use function file_put_contents;
 use function is_file;
 use function simplexml_load_string;
-use function strpos;
 use function strtotime;
 
 use const FILE_APPEND;
@@ -36,44 +35,38 @@ use const FILE_APPEND;
  */
 abstract class BaseHandler extends BaseObject implements Handler
 {
-    /** @var string ключ данных Свойств */
+    /** ключ данных Свойств */
     public const KEY_PROP = 'prop';
 
-    /** @var string ключ данных Групп */
+    /** ключ данных Групп */
     public const KEY_GROUP = 'group';
 
-    /** @var string ключ данных Товаров */
+    /** ключ данных Товаров */
     public const KEY_PROD = 'prod';
 
-    /** @var string ключ данных Заказов */
+    /** ключ данных Заказов */
     public const KEY_ORDER = 'order';
 
-    /** @var string ключ данных файлов */
+    /** ключ данных файлов */
     public const KEY_FILE = 'file';
 
-    /** @var string клч данных Предложений */
+    /** ключ данных Предложений */
     public const KEY_OFFER = 'offer';
-
-    /** @var Module */
-    protected $module;
 
     /**
      * AbstractExchangeHandler constructor.
-     *
-     * @param Module $module
-     * @param array $config
      */
-    public function __construct(Module $module, array $config = [])
-    {
-        $this->module = $module;
-
+    public function __construct(
+        protected Module $module,
+        array $config = []
+    ) {
         parent::__construct($config);
     }
 
     /**
      * @inheritDoc
      */
-    public function processCatalogCheckAuth()
+    public function processCatalogCheckAuth(): array|string|null
     {
         return $this->processAuth();
     }
@@ -82,7 +75,7 @@ abstract class BaseHandler extends BaseObject implements Handler
      * @inheritDoc
      * @throws ErrorException
      */
-    public function processCatalogInit(): array
+    public function processCatalogInit(): array|string|null
     {
         return $this->processInit();
     }
@@ -91,7 +84,7 @@ abstract class BaseHandler extends BaseObject implements Handler
      * @inheritDoc
      * @throws ErrorException
      */
-    public function processCatalogFile(string $filename, string $content)
+    public function processCatalogFile(string $filename, string $content): array|string|null
     {
         return $this->processFile($filename, $content);
     }
@@ -100,7 +93,7 @@ abstract class BaseHandler extends BaseObject implements Handler
      * @inheritDoc
      * @throws ErrorException
      */
-    public function processCatalogImport(string $filename)
+    public function processCatalogImport(string $filename): array|string|null
     {
         // распаковываем zip-файлы
         $this->module->extractZipFiles();
@@ -152,7 +145,7 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * @inheritDoc
      */
-    public function processSaleCheckAuth()
+    public function processSaleCheckAuth(): array|string|null
     {
         return $this->processAuth();
     }
@@ -161,7 +154,7 @@ abstract class BaseHandler extends BaseObject implements Handler
      * @inheritDoc
      * @throws ErrorException
      */
-    public function processSaleInit()
+    public function processSaleInit(): array|string|null
     {
         return $this->processInit();
     }
@@ -169,7 +162,7 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * @inheritDoc
      */
-    public function processSaleQuery()
+    public function processSaleQuery(): string|SimpleXMLElement
     {
         throw new NotSupportedException('Не реализовано');
     }
@@ -177,7 +170,7 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * @inheritDoc
      */
-    public function processSaleSuccess()
+    public function processSaleSuccess(): array|string|null
     {
         return null;
     }
@@ -186,7 +179,7 @@ abstract class BaseHandler extends BaseObject implements Handler
      * @inheritDoc
      * @throws ErrorException
      */
-    public function processSaleFile(string $filename, string $content)
+    public function processSaleFile(string $filename, string $content): array|string|null
     {
         $ret = $this->processFile($filename, $content);
 
@@ -209,7 +202,7 @@ abstract class BaseHandler extends BaseObject implements Handler
      * @inheritDoc
      * @throws ErrorException
      */
-    public function processSaleImport(string $filename)
+    public function processSaleImport(string $filename): array|string|null
     {
         // распаковываем zip-файлы
         $this->module->extractZipFiles();
@@ -241,10 +234,8 @@ abstract class BaseHandler extends BaseObject implements Handler
 
     /**
      * Авторизация.
-     *
-     * @return string|string[]|null
      */
-    protected function processAuth(): array
+    protected function processAuth(): array|string|null
     {
         // параметры сессии
         return [
@@ -256,11 +247,10 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * Инициализация вначале обмена.
      *
-     * @return string|string[]|null
      * @throws Exception
      * @throws ErrorException
      */
-    protected function processInit(): array
+    protected function processInit(): array|string|null
     {
         // очищаем сессию
         $this->module->sess(false);
@@ -278,13 +268,10 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * Обработка файла.
      *
-     * @param string $filename
-     * @param string $content
-     * @return string|string[]|null
      * @throws Exception
      * @throws ErrorException
      */
-    public function processFile(string $filename, string $content)
+    public function processFile(string $filename, string $content): string|array|null
     {
         $filepath = $this->module->path($filename);
         FileHelper::createDirectory(dirname($filepath));
@@ -307,7 +294,6 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * Импорт Свойств.
      *
-     * @param SimpleXMLElement $xml
      * @throws ProgressException
      */
     protected function importProps(SimpleXMLElement $xml): void
@@ -361,7 +347,7 @@ abstract class BaseHandler extends BaseObject implements Handler
      * @return int|string|array|null идентификатор свойства на сайте
      * @noinspection PhpUnusedParameterInspection
      */
-    protected function importProp(SimpleXMLElement $xmlProp)
+    protected function importProp(SimpleXMLElement $xmlProp): int|array|string|null
     {
         return null;
     }
@@ -369,7 +355,6 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * Импорт Групп.
      *
-     * @param SimpleXMLElement $xml
      * @throws ProgressException
      */
     protected function importGroups(SimpleXMLElement $xml): void
@@ -394,7 +379,7 @@ abstract class BaseHandler extends BaseObject implements Handler
                 $this->importGroupRecursive($xmlGroup, null);
             } catch (ProgressException $ex) {
                 // сообщение о лимите времени не перехватываем, добавляем в сообщение номер позиции
-                throw new ProgressException('Импорт Групп..., pos=' . $pos);
+                throw new ProgressException('Импорт Групп..., pos=' . $pos, 0, $ex);
             } catch (Throwable $ex) {
                 $this->module->errors($ex);
             }
@@ -412,7 +397,7 @@ abstract class BaseHandler extends BaseObject implements Handler
      * @throws ProgressException закончилось время
      * @throws Exception ошибка импорта
      */
-    protected function importGroupRecursive(SimpleXMLElement $xmlGroup, $parentId): void
+    protected function importGroupRecursive(SimpleXMLElement $xmlGroup, int|string|null $parentId): void
     {
         // проверяем наличие времени
         if ($this->module->availableTime() < 1) {
@@ -452,12 +437,12 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * Импорт данных Группы (без рекурсии дочерних !!!)
      *
-     * @param string|int $parentId идентификатор на сайте родительской группы
+     * @param int|string $parentId идентификатор на сайте родительской группы
      * @param SimpleXMLElement $xmlGroup (Классификатор->Группы->Группа)
      * @return string|int|null $parentId идентификатор группы на сайте
      * @noinspection PhpUnusedParameterInspection
      */
-    protected function importGroup(SimpleXMLElement $xmlGroup, $parentId)
+    protected function importGroup(SimpleXMLElement $xmlGroup, int|string $parentId): int|string|null
     {
         return null;
     }
@@ -465,7 +450,6 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * Импорт Товаров.
      *
-     * @param SimpleXMLElement $xml
      * @throws ProgressException
      */
     protected function importProducts(SimpleXMLElement $xml): void
@@ -520,7 +504,7 @@ abstract class BaseHandler extends BaseObject implements Handler
      * @return int|string|null ID импортированного  сайт товара
      * @noinspection PhpUnusedParameterInspection
      */
-    protected function importProduct(SimpleXMLElement $xmlProd)
+    protected function importProduct(SimpleXMLElement $xmlProd): int|string|null
     {
         return null;
     }
@@ -528,7 +512,6 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * Импорт Предложений.
      *
-     * @param SimpleXMLElement $xml
      * @throws ProgressException
      */
     protected function importOffers(SimpleXMLElement $xml): void
@@ -581,7 +564,6 @@ abstract class BaseHandler extends BaseObject implements Handler
      * Вызывается когда документ СодержитТолькоИзменения="false".
      * Идентификаторы импортированных за сессию данных можно получить в $this->module->stat();
      *
-     * @param SimpleXMLElement $xml документ
      * @see Module::stat()
      */
     protected function cleanOldData(SimpleXMLElement $xml): void
@@ -592,7 +574,6 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * Импорт заказов.
      *
-     * @param SimpleXMLElement $xml XML
      * @throws ProgressException
      */
     protected function importOrders(SimpleXMLElement $xml): void
@@ -641,40 +622,34 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * Импорт заказа.
      *
-     * @param SimpleXMLElement $xmlDoc Документ
      * @return string|int|null ID заказа на сайте
      * @noinspection PhpUnusedParameterInspection
      */
-    protected function importOrder(SimpleXMLElement $xmlDoc)
+    protected function importOrder(SimpleXMLElement $xmlDoc): int|string|null
     {
         return null;
     }
 
     /**
      * Парсит значение 1C Ид.
-     *
-     * @param string|null $cid
-     * @return string|null
      */
     protected function parseCid(?string $cid): ?string
     {
         $cid = (string)$cid;
 
-        return $cid === '' || strpos($cid, C1::ZERO_CID) === 0 ? null : $cid;
+        return $cid === '' || str_starts_with($cid, C1::ZERO_CID) ? null : $cid;
     }
 
     /**
      * Парсит дату-время
      *
-     * @param string|null $datetime строка
-     * @param string $format формат
      * @return ?string форматированная дата
      * @throws Exception ошибка в строке
      */
     protected function parseDatetime(?string $datetime, string $format = 'Y-m-d H:i:s'): ?string
     {
         $datetime = (string)$datetime;
-        if ($datetime === '' || strpos($datetime, C1::ZERO_DATE) === 0) {
+        if ($datetime === '' || str_starts_with($datetime, C1::ZERO_DATE)) {
             return null;
         }
 
@@ -689,7 +664,6 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * Парсит ЗначенияРеквизитов из XML.
      *
-     * @param SimpleXMLElement $xml
      * @return string[] name => val
      */
     protected function parseRequisites(SimpleXMLElement $xml): array
@@ -712,15 +686,16 @@ abstract class BaseHandler extends BaseObject implements Handler
     /**
      * Добавляет ЗначенияРеквизитов в XML.
      *
-     * @param SimpleXMLElement $xml
      * @param string[] $reqs id => val
      */
     protected function exportRequisites(SimpleXMLElement $xml, array $reqs): void
     {
+        /** @var SimpleXMLElement $xmlReqs */
         $xmlReqs = $xml->addChild('ЗначенияРеквизитов');
 
         foreach ($reqs as $name => $val) {
             if ($val !== null && $val !== '') {
+                /** @var SimpleXMLElement $xmlReq */
                 $xmlReq = $xmlReqs->addChild('ЗначениеРеквизита');
                 $xmlReq->Наименование = $name;
                 $xmlReq->Значение = $val;

@@ -1,14 +1,15 @@
 <?php
 /*
- * @copyright 2019-2021 Dicr http://dicr.org
+ * @copyright 2019-2022 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license BSD-3-Clause
- * @version 12.08.21 23:07:56
+ * @version 08.01.22 17:05:49
  */
 
 declare(strict_types = 1);
 namespace dicr\exchange1c;
 
+use Closure;
 use Throwable;
 use Yii;
 use yii\base\ErrorException;
@@ -28,9 +29,9 @@ use function implode;
 use function in_array;
 use function ini_get;
 use function is_array;
+use function is_callable;
 use function is_scalar;
 use function is_string;
-use function mb_strpos;
 use function preg_match;
 use function rename;
 use function set_time_limit;
@@ -45,17 +46,17 @@ use const PHP_INT_MAX;
  */
 class Module extends \yii\base\Module
 {
-    /** @var bool вызывать sale/import при обработке sale/file (некоторые 1С не отправляют sale/import) */
-    public $saleImportInFile = true;
+    /** вызывать sale/import при обработке sale/file (некоторые 1С не отправляют sale/import) */
+    public bool $saleImportInFile = true;
 
-    /** @var string путь для временных файлов */
-    public $path = '@runtime/exchange1c';
+    /** путь для временных файлов */
+    public string $path = '@runtime/exchange1c';
 
-    /** @var Handler */
-    public $handler;
+    /** обработчик обмена 1С */
+    public string|array|Closure|Handler $handler;
 
-    /** @var int лимит количества ошибок в статистике */
-    public $errorsLimit = 100;
+    /** лимит количества ошибок в статистике */
+    public int $errorsLimit = 100;
 
     /** @inheritDoc */
     public $controllerNamespace = __NAMESPACE__;
@@ -81,8 +82,8 @@ class Module extends \yii\base\Module
             $this->handler = Instance::ensure($this->handler, Handler::class);
         } elseif (is_array($this->handler)) {
             $this->handler = Yii::createObject($this->handler, [$this]);
-        } elseif (! $this->handler instanceof Handler) {
-            throw new InvalidConfigException('handler');
+        } elseif (is_callable($this->handler)) {
+            $this->handler = ($this->handler)($this);
         }
 
         /** @noinspection PhpUsageOfSilenceOperatorInspection */
@@ -92,7 +93,6 @@ class Module extends \yii\base\Module
     /**
      * Проверяет доступно ли расширение zip.
      *
-     * @return bool
      * @noinspection PhpMethodMayBeStaticInspection
      */
     public function zipEnabled(): bool
@@ -128,7 +128,6 @@ class Module extends \yii\base\Module
     /**
      * Максимальный размер файла загрузки.
      *
-     * @return int
      * @throws Exception
      * @noinspection PhpMethodMayBeStaticInspection
      */
@@ -191,12 +190,10 @@ class Module extends \yii\base\Module
     /**
      * Получить абсолютный путь файла/очистить директорию обмена.
      *
-     * @param string|false $file
-     * @return string
      * @throws Exception
      * @throws ErrorException
      */
-    public function path($file): string
+    public function path(string|false $file): string
     {
         if ($file === false) {
             FileHelper::removeDirectory($this->path);
@@ -206,7 +203,7 @@ class Module extends \yii\base\Module
         }
 
         $path = FileHelper::normalizePath($this->path . '/' . $file);
-        if (mb_strpos($path, $this->path) !== 0) {
+        if (! str_starts_with($path, $this->path)) {
             throw new Exception('Путь "' . $path . '" не находится в папке обмена "' . $this->path . '"');
         }
 
@@ -216,10 +213,10 @@ class Module extends \yii\base\Module
     /**
      * Устанавливает/возвращает/очищает параметры в сессии.
      *
-     * @param array|false|null $sess параметры сессии для установки, null для получения или false для очистки
+     * @param bool|array|null $sess параметры сессии для установки, null для получения или false для очистки
      * @return array текущие параметры сессии
      */
-    public function sess($sess = null): array
+    public function sess(array|false|null $sess = null): array
     {
         if ($sess === null) {
             $sess = Yii::$app->session->get(__CLASS__, []);
@@ -240,7 +237,7 @@ class Module extends \yii\base\Module
      * @param string|false|null $key string увеличивает счетчик, false сбрасывает статистику, null - возвращает строку
      * @return int|string новое значение счетчика или строка статистики
      */
-    public function stat($key = null)
+    public function stat(string|false|null $key = null): int|string
     {
         // получаем сессию
         $sess = $this->sess();
@@ -293,10 +290,9 @@ class Module extends \yii\base\Module
     /**
      * Добавить/получить/очистить ошибки, хранящиеся в сессии.
      *
-     * @param Throwable|string|false|null $error
      * @return string текущая ошибка или все ошибки
      */
-    public function errors($error = null): string
+    public function errors(Throwable|string|false|null $error = null): string
     {
         $sess = $this->sess();
         if (empty($sess['errors'])) {
@@ -341,7 +337,7 @@ class Module extends \yii\base\Module
      * @param mixed $val значение для установки или null для получения
      * @return mixed текущее значение
      */
-    public function cache($key, $val = null)
+    public function cache(array|false $key, mixed $val = null): mixed
     {
         // получаем сессию
         $sess = $this->sess();
@@ -382,7 +378,7 @@ class Module extends \yii\base\Module
      * @param int|null $pos новая позиция
      * @return int|array
      */
-    public function progress($key, ?int $pos = null)
+    public function progress(string|false|null $key, ?int $pos = null): int|array
     {
         // получаем сессию
         $sess = $this->sess();

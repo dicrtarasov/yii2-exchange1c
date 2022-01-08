@@ -20,7 +20,7 @@
     "minimum-stability": "RC",
     "prefer-stable": true,
     "require": {
-        "php": "~7.4 || ~8.0.1",
+        "php": "~8.0",
         "ext-simplexml": "*",
         "ext-curl": "*",
         "ext-zip": "*",
@@ -29,10 +29,10 @@
         "yiisoft/yii2": "~2.0",
         "yiisoft/yii2-httpclient": "~2.0",
 
-        "dicr/yii2-helper": "~5.0",
-        "dicr/yii2-http": "~3.0",
-        "dicr/yii2-log": "~2.0",
-        "dicr/yii2-validate": "~2.3"
+        "dicr/yii2-helper": "~6.0",
+        "dicr/yii2-http": "~4.0",
+        "dicr/yii2-log": "~3.0",
+        "dicr/yii2-validate": "~3.0"
     },
     "autoload": {
         "psr-4": {

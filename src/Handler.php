@@ -1,9 +1,9 @@
 <?php
 /*
- * @copyright 2019-2021 Dicr http://dicr.org
+ * @copyright 2019-2022 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
- * @license MIT
- * @version 27.02.21 18:08:02
+ * @license BSD-3-Clause
+ * @version 08.01.22 16:41:24
  */
 
 declare(strict_types = 1);
@@ -26,7 +26,7 @@ interface Handler
      * @return string|string[]|null данные для успешного ответа (success)
      * @throws Exception ошибка (ответ failure)
      */
-    public function processCatalogCheckAuth();
+    public function processCatalogCheckAuth(): array|string|null;
 
     /**
      * Инициализация параметров импорта каталога.
@@ -34,7 +34,7 @@ interface Handler
      * @return string|string[]|null данные для успешного ответа (success)
      * @throws Exception ошибка (ответ failure)
      */
-    public function processCatalogInit(): array;
+    public function processCatalogInit(): array|string|null;
 
     /**
      * Загрузка файлов каталога.
@@ -44,7 +44,7 @@ interface Handler
      * @return string|string[]|null данные для успешного ответа (success)
      * @throws Exception ошибка (ответ failure)
      */
-    public function processCatalogFile(string $filename, string $content);
+    public function processCatalogFile(string $filename, string $content): array|string|null;
 
     /**
      * Пошаговая загрузка каталога.
@@ -53,7 +53,7 @@ interface Handler
      * @return string|string[]|null данные для успешного ответа (success)
      * @throws Exception ошибка (ответ failure)
      */
-    public function processCatalogImport(string $filename);
+    public function processCatalogImport(string $filename): array|string|null;
 
     /**
      * Авторизация обмена заказами.
@@ -61,7 +61,7 @@ interface Handler
      * @return string|string[]|null данные для успешного ответа (success)
      * @throws Exception ошибка (ответ failure)
      */
-    public function processSaleCheckAuth();
+    public function processSaleCheckAuth(): array|string|null;
 
     /**
      * Инициализация параметров загрузки заказов.
@@ -69,7 +69,7 @@ interface Handler
      * @return string|string[]|null данные для успешного ответа (success)
      * @throws Exception ошибка (ответ failure)
      */
-    public function processSaleInit();
+    public function processSaleInit(): array|string|null;
 
     /**
      * Экспорт заказов.
@@ -77,7 +77,7 @@ interface Handler
      * @return string|SimpleXMLElement ответ XML
      * @throws Exception ошибка (ответ failure)
      */
-    public function processSaleQuery();
+    public function processSaleQuery(): SimpleXMLElement|string;
 
     /**
      * Оповещение от 1С об успешном приеме заказов.
@@ -85,7 +85,7 @@ interface Handler
      * @return string|string[]|null данные для успешного ответа (success)
      * @throws Exception ошибка (ответ failure)
      */
-    public function processSaleSuccess();
+    public function processSaleSuccess(): array|string|null;
 
     /**
      * Загрузка файлов заказа на сайт.
@@ -95,7 +95,7 @@ interface Handler
      * @return string|string[]|null данные для успешного ответа (success)
      * @throws Exception ошибка (ответ failure)
      */
-    public function processSaleFile(string $filename, string $content);
+    public function processSaleFile(string $filename, string $content): array|string|null;
 
     /**
      * Импорт файла заказов.
@@ -106,5 +106,5 @@ interface Handler
      * @throws Exception ошибка (ответ failure)
      * @throws ProgressException истекло время работы (ответ progress)
      */
-    public function processSaleImport(string $filename);
+    public function processSaleImport(string $filename): array|string|null;
 }

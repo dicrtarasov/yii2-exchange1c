@@ -1,9 +1,9 @@
 <?php
 /*
- * @copyright 2019-2021 Dicr http://dicr.org
+ * @copyright 2019-2022 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license BSD-3-Clause
- * @version 28.05.21 15:07:27
+ * @version 08.01.22 17:09:49
  */
 
 declare(strict_types = 1);
@@ -30,7 +30,6 @@ use function feof;
 use function fopen;
 use function fread;
 use function is_file;
-use function is_string;
 use function mb_substr;
 use function preg_match;
 use function preg_split;
@@ -49,26 +48,26 @@ use const CURLOPT_USERNAME;
  */
 class Client extends Component
 {
-    /** @var string адрес для обмена с сайтом */
-    public $url;
+    /** адрес для обмена с сайтом */
+    public string $url;
 
-    /** @var ?string логин сайта */
-    public $login;
+    /** логин сайта */
+    public ?string $login = null;
 
-    /** @var ?string пароль */
-    public $password;
+    /** пароль */
+    public ?string $password = null;
 
-    /** @var bool импорт заказов выполняется в sale/file и отсутствует отдельный sale/import */
-    public $saleImportInFile = true;
+    /** импорт заказов выполняется в sale/file и отсутствует отдельный sale/import */
+    public bool $saleImportInFile = true;
 
-    /** @var ?Cookie кука для авторизации по-умолчанию (обновляет значение с сервера) */
-    public $authCookie;
+    /** кука для авторизации по-умолчанию (обновляет значение с сервера) */
+    public ?Cookie $authCookie = null;
 
-    /** @var bool сервер поддерживает zip-архивы (обновляет значение с сервера) */
-    public $zipEnabled = false;
+    /** сервер поддерживает zip-архивы (обновляет значение с сервера) */
+    public bool $zipEnabled = false;
 
-    /** @var int лимит отправляемого файла (обновляет значение с сервера) */
-    public $fileLimit = 10 * 1024 * 1024;
+    /** лимит отправляемого файла (обновляет значение с сервера) */
+    public int $fileLimit = 10 * 1024 * 1024;
 
     /**
      * @inheritDoc
@@ -78,7 +77,7 @@ class Client extends Component
     {
         parent::init();
 
-        if (empty($this->url) || ! is_string($this->url)) {
+        if (empty($this->url)) {
             throw new InvalidConfigException('url');
         }
     }
@@ -108,7 +107,6 @@ class Client extends Component
     /**
      * Отправка файла каталога (catalog/file).
      *
-     * @param string $file
      * @return string[] дополнительные данные ответа
      * @throws Exception
      */
@@ -120,7 +118,6 @@ class Client extends Component
     /**
      * Импорт файла каталога (catalog/import).
      *
-     * @param string $file
      * @return string[] дополнительные данные ответа
      * @throws Exception
      */
@@ -154,7 +151,6 @@ class Client extends Component
     /**
      * Запрос заказов с сайта (sale/query)
      *
-     * @return SimpleXMLElement
      * @throws Exception
      */
     public function requestSaleQuery(): SimpleXMLElement
@@ -196,7 +192,6 @@ class Client extends Component
      * Загрузка файла заказов на сайт (sale/file).
      * Может сразу выполняться импорт заказов на сайте без команды sale/import.
      *
-     * @param string $file
      * @return string[]
      * @throws Exception
      */
@@ -208,7 +203,6 @@ class Client extends Component
     /**
      * Импорт файла заказов (sale/import).
      *
-     * @param string $file
      * @return string[]
      * @throws Exception
      */
@@ -219,17 +213,14 @@ class Client extends Component
         return $this->saleImportInFile ? [] : $this->requestImport(C1::TYPE_SALE, $file);
     }
 
-    /** @var \yii\httpclient\Client */
-    private $_httpClient;
+    private \yii\httpclient\Client $_httpClient;
 
     /**
      * HTTP-клиент.
-     *
-     * @return \yii\httpclient\Client
      */
     public function getHttpClient(): \yii\httpclient\Client
     {
-        if ($this->_httpClient === null) {
+        if (! isset($this->_httpClient)) {
             $this->_httpClient = new \yii\httpclient\Client([
                 'transport' => CurlTransport::class,
                 'requestConfig' => [
@@ -313,7 +304,6 @@ class Client extends Component
     /**
      * Отправка запроса.
      *
-     * @param Request $request
      * @return string текст ответа
      * @throws Exception
      */
@@ -395,7 +385,6 @@ class Client extends Component
      * Отправка файла (.../file)
      *
      * @param string $type тип обмена (catalog, sale)
-     * @param string $file
      * @return string[] дополнительные данные ответа
      * @throws Exception
      */
@@ -442,7 +431,6 @@ class Client extends Component
      * Импорт файла .../import
      *
      * @param string $type тип обмена (catalog, sale)
-     * @param string $file
      * @return string[] дополнительные данные ответа
      * @throws Exception
      */
